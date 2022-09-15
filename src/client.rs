@@ -3,7 +3,9 @@
 
 use std::collections::HashMap;
 
-use reqwest::header;
+use reqwest::header::{HeaderMap, HeaderValue, InvalidHeaderValue};
+use reqwest::Client as ReqwestClient;
+use reqwest::Proxy;
 use serde::de::DeserializeOwned;
 
 use crate::model::{
@@ -15,13 +17,14 @@ pub const BASE_URL: &str = "https://pool.braiins.com";
 
 #[derive(Clone)]
 pub struct Client {
-    client: reqwest::Client,
+    client: ReqwestClient,
 }
 
 #[derive(Debug)]
 pub enum Error {
     FailedToDeserialize(String),
     ReqwestError(reqwest::Error),
+    InvalidHeaderValue(InvalidHeaderValue),
     EmptyResponse,
     BadResult,
     Unauthorized,
@@ -41,21 +44,21 @@ pub enum Error {
 }
 
 impl Client {
-    pub fn new(api_key: &str, proxy: Option<&str>) -> Self {
-        let mut headers = header::HeaderMap::new();
-        let mut auth_value = header::HeaderValue::from_str(api_key).unwrap();
+    pub fn new(api_key: &str, proxy: Option<&str>) -> Result<Self, Error> {
+        let mut headers = HeaderMap::new();
+        let mut auth_value = HeaderValue::from_str(api_key)?;
         auth_value.set_sensitive(true);
         headers.insert("SlushPool-Auth-Token", auth_value);
 
-        let mut client = reqwest::Client::builder().default_headers(headers);
+        let mut client = ReqwestClient::builder().default_headers(headers);
 
         if let Some(proxy) = proxy {
-            client = client.proxy(reqwest::Proxy::all(proxy).unwrap());
+            client = client.proxy(Proxy::all(proxy)?);
         }
 
-        Self {
-            client: client.build().unwrap(),
-        }
+        Ok(Self {
+            client: client.build()?,
+        })
     }
 
     pub async fn check_tor_connection(&self) -> Result<bool, Error> {
@@ -157,5 +160,11 @@ where
 impl From<reqwest::Error> for Error {
     fn from(err: reqwest::Error) -> Self {
         Error::ReqwestError(err)
+    }
+}
+
+impl From<InvalidHeaderValue> for Error {
+    fn from(err: InvalidHeaderValue) -> Self {
+        Error::InvalidHeaderValue(err)
     }
 }

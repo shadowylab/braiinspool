@@ -17,9 +17,6 @@ pub struct GenericResult<T> {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct EmptyData {}
-
-#[derive(Deserialize, Debug)]
 pub struct PoolStats {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub luck_b10: f32,

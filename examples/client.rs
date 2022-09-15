@@ -8,7 +8,7 @@ use braiinspool::Client;
 #[tokio::main]
 async fn main() {
     // Init client
-    let client = Client::new("apikey", Some("socks5://127.0.0.1:9050"));
+    let client = Client::new("apikey", Some("socks5://127.0.0.1:9050")).unwrap();
 
     // Check tor connection
     println!("{:#?}", client.check_tor_connection().await.unwrap());
