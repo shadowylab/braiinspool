@@ -1,0 +1,18 @@
+[package]
+name = "braiinspool"
+version = "0.1.0"
+edition = "2021"
+description = "Braiins Pool API SDK"
+authors = ["Yuki Kishimoto <yukikishimoto@proton.me>"]
+license = "MIT"
+homepage = "https://gitlab.com/p2kishimoto/braiinspool-rust-sdk"
+repository = "https://gitlab.com/p2kishimoto/braiinspool-rust-sdk.git"
+keywords = ["bitcoin", "braiins", "braiinspool", "slushpool", "mining", "sdk"]
+
+[dependencies]
+reqwest = { version = "0.11.9", features = ["json", "socks"] }
+serde = { version = "1.0.133", features = ["derive"] }
+serde_json = "1.0.74"
+
+[dev-dependencies]
+tokio = { version =  "1.15.0", features = ["full"] }
