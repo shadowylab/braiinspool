@@ -4,9 +4,10 @@ version = "0.1.0"
 edition = "2021"
 description = "Braiins Pool API SDK"
 authors = ["Yuki Kishimoto <yukikishimoto@proton.me>"]
+homepage = "https://github.com/yukibtc/braiins-rust-sdk"
+repository = "https://github.com/yukibtc/braiins-rust-sdk.git"
 license = "MIT"
-homepage = "https://gitlab.com/p2kishimoto/braiinspool-rust-sdk"
-repository = "https://gitlab.com/p2kishimoto/braiinspool-rust-sdk.git"
+readme = "README.md"
 keywords = ["bitcoin", "braiins", "braiinspool", "slushpool", "mining", "sdk"]
 
 [dependencies]
