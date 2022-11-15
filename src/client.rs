@@ -9,8 +9,8 @@ use reqwest::Proxy;
 use serde::de::DeserializeOwned;
 
 use crate::model::{
-    CheckTorConnection, DailyReward, DailyRewards, GenericResult, PoolStats, UserProfile, Worker,
-    Workers,
+    CheckTorConnection, DailyReward, DailyRewardsResult, GenericResult, PoolStats, UserProfile,
+    Worker, WorkersResult,
 };
 
 pub const BASE_URL: &str = "https://pool.braiins.com";
@@ -20,30 +20,57 @@ pub struct Client {
     client: ReqwestClient,
 }
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
+    #[error("Failed to deserialize: {0}")]
     FailedToDeserialize(String),
+    #[error("Reqwest error: {0}")]
     ReqwestError(reqwest::Error),
+    #[error("Invalid header value: {0}")]
     InvalidHeaderValue(InvalidHeaderValue),
+    #[error("Empty Response")]
     EmptyResponse,
+    #[error("Bad Result")]
     BadResult,
+    #[error("Unauthorized")]
     Unauthorized,
+    #[error("Bad Request")]
     BadRequest,
+    #[error("Forbidden")]
     Forbidden,
+    #[error("Not Found")]
     NotFound,
+    #[error("Method Not Allowed")]
     MethodNotAllowed,
+    #[error("Too Many Requests")]
     TooManyRequests,
+    #[error("Unhandled Client Error")]
     UnhandledClientError,
+    #[error("Internal Server Error")]
     InternalServerError,
+    #[error("Internal Server Error")]
     NotImplemented,
+    #[error("Bad Gateway")]
     BadGateway,
+    #[error("Service Unavailable")]
     ServiceUnavailable,
+    #[error("Gateway Timeout")]
     GatewayTimeout,
+    #[error("Unhandled Server Error")]
     UnhandledServerError,
+    #[error("Invalid API Key")]
     InvalidApiKey,
 }
 
 impl Client {
+    /// Create a new `Client`
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use braiinspool::Client;
+    ///
+    /// let client = Client::new("apikey", Some("socks5h://127.0.0.1:9050")).unwrap();
+    /// ```
     pub fn new(api_key: &str, proxy: Option<&str>) -> Result<Self, Error> {
         let mut headers = HeaderMap::new();
         let mut auth_value = HeaderValue::from_str(api_key)?;
@@ -61,6 +88,7 @@ impl Client {
         })
     }
 
+    /// Check Tor connection
     pub async fn check_tor_connection(&self) -> Result<bool, Error> {
         let req = self.client.get("https://check.torproject.org/api/ip");
         let res = request::<CheckTorConnection>(req).await?;
@@ -93,7 +121,7 @@ impl Client {
         let endpoint: String = format!("{}/accounts/rewards/json/btc", BASE_URL);
 
         let req = self.client.get(endpoint);
-        let res = request::<GenericResult<DailyRewards>>(req).await?;
+        let res = request::<GenericResult<DailyRewardsResult>>(req).await?;
 
         Ok(res.btc.daily_rewards)
     }
@@ -103,7 +131,7 @@ impl Client {
         let endpoint: String = format!("{}/accounts/workers/json/btc", BASE_URL);
 
         let req = self.client.get(endpoint);
-        let res = request::<GenericResult<Workers>>(req).await?;
+        let res = request::<GenericResult<WorkersResult>>(req).await?;
 
         Ok(res.btc.workers)
     }

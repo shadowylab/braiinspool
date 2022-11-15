@@ -6,13 +6,13 @@ use std::collections::HashMap;
 use crate::util::deserialize_number_from_string;
 
 #[derive(Deserialize, Debug)]
-pub struct CheckTorConnection {
+pub(crate) struct CheckTorConnection {
     #[serde(rename = "IsTor")]
     pub is_tor: bool,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct GenericResult<T> {
+pub(crate) struct GenericResult<T> {
     pub btc: T,
 }
 
@@ -68,9 +68,11 @@ pub struct DailyReward {
     pub referral_reward: f64,
 }
 
+pub type DailyRewards = Vec<DailyReward>;
+
 #[derive(Deserialize, Debug)]
-pub struct DailyRewards {
-    pub daily_rewards: Vec<DailyReward>,
+pub(crate) struct DailyRewardsResult {
+    pub daily_rewards: DailyRewards,
 }
 
 #[derive(Deserialize, Debug)]
@@ -84,7 +86,9 @@ pub struct Worker {
     pub hash_rate_24h: f64,
 }
 
+pub type Workers = HashMap<String, Worker>;
+
 #[derive(Deserialize, Debug)]
-pub struct Workers {
-    pub workers: HashMap<String, Worker>,
+pub(crate) struct WorkersResult {
+    pub workers: Workers,
 }

@@ -1,6 +1,7 @@
 // Copyright (c) 2021-2022 Yuki Kishimoto
 // Distributed under the MIT software license
 
+use braiinspool::model::{DailyRewards, PoolStats, UserProfile, Workers};
 use braiinspool::{Client, Error};
 
 #[tokio::main]
@@ -12,16 +13,20 @@ async fn main() -> Result<(), Error> {
     println!("{}", client.check_tor_connection().await?);
 
     // Get pool stats
-    println!("{:#?}", client.pool_stats().await?);
+    let pool_stats: PoolStats = client.pool_stats().await?;
+    println!("{:#?}", pool_stats);
 
     // Get user profile
-    println!("{:#?}", client.user_profile().await?);
+    let user_profile: UserProfile = client.user_profile().await?;
+    println!("{:#?}", user_profile);
 
     // Get daily rewards
-    println!("{:#?}", client.daily_rewards().await?);
+    let daily_rewards: DailyRewards = client.daily_rewards().await?;
+    println!("{:#?}", daily_rewards);
 
     // Get workers
-    println!("{:#?}", client.workers().await?);
+    let workers: Workers = client.workers().await?;
+    println!("{:#?}", workers);
 
     Ok(())
 }
