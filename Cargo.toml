@@ -1,11 +1,11 @@
 [package]
 name = "braiinspool"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Braiins Pool API SDK"
 authors = ["Yuki Kishimoto <yukikishimoto@proton.me>"]
-homepage = "https://github.com/yukibtc/braiins-rs-sdk"
-repository = "https://github.com/yukibtc/braiins-rs-sdk.git"
+homepage = "https://github.com/yukibtc/braiinspool-rs-sdk"
+repository = "https://github.com/yukibtc/braiinspool-rs-sdk.git"
 license = "MIT"
 readme = "README.md"
 keywords = ["bitcoin", "braiins", "slushpool", "mining", "sdk"]
