@@ -1,6 +1,6 @@
 [package]
 name = "braiinspool"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2024"
 description = "Braiins Pool API"
 authors = ["Yuki Kishimoto <yukikishimoto@protonmail.com>"]
