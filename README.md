@@ -1,4 +1,4 @@
-# Braiins Pool API SDK
+# Braiins Pool API
 
 ## Description
 

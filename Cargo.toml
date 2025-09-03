@@ -2,13 +2,13 @@
 name = "braiinspool"
 version = "0.1.1"
 edition = "2021"
-description = "Braiins Pool API SDK"
-authors = ["Yuki Kishimoto <yukikishimoto@proton.me>"]
-homepage = "https://github.com/yukibtc/braiinspool-rs-sdk"
-repository = "https://github.com/yukibtc/braiinspool-rs-sdk.git"
+description = "Braiins Pool API"
+authors = ["Yuki Kishimoto <yukikishimoto@protonmail.com>"]
+homepage = "https://github.com/shadowylab/braiinspool"
+repository = "https://github.com/shadowylab/braiinspool.git"
 license = "MIT"
 readme = "README.md"
-keywords = ["bitcoin", "braiins", "slushpool", "mining", "sdk"]
+keywords = ["bitcoin", "braiins", "slushpool", "mining"]
 
 [dependencies]
 reqwest = { version = "0.11", features = ["json", "socks"] }
