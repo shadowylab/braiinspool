@@ -4,24 +4,15 @@
 
 [Braiins](https://braiins.com) client library to check miners status from [Rust](https://rust-lang.org).
 
-## Example
-
-```toml
-braiinspool = "0.1"
-tokio = { version = "1", features = ["full"] }
-```
+## Getting started
 
 ```rust,no_run
-use braiinspool::model::{DailyRewards, PoolStats, UserProfile, Workers};
-use braiinspool::{Client, Error};
+use braiinspool::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    // Init client
-    let client = Client::new("apikey", Some("socks5h://127.0.0.1:9050"))?;
-
-    // Check tor connection
-    println!("{}", client.check_tor_connection().await?);
+    // Construct client
+    let client = BraiinsPoolClient::new("apikey")?;
 
     // Get pool stats
     let pool_stats: PoolStats = client.pool_stats().await?;
