@@ -1,6 +1,3 @@
-// Copyright (c) 2021-2022 Yuki Kishimoto
-// Distributed under the MIT software license
-
 use std::fmt::Display;
 use std::str::FromStr;
 

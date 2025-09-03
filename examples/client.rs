@@ -1,6 +1,3 @@
-// Copyright (c) 2021-2022 Yuki Kishimoto
-// Distributed under the MIT software license
-
 use braiinspool::model::{DailyRewards, PoolStats, UserProfile, Workers};
 use braiinspool::{Client, Error};
 
