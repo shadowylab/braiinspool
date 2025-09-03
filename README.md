@@ -34,6 +34,16 @@ async fn main() -> Result<(), Error> {
 }
 ```
 
+## Features
+
+The following crate feature flags are available:
+
+| Feature     | Default | Description                 |
+|-------------|:-------:|-----------------------------|
+| `rustls`    |   Yes   | Enable `rustls`             |
+| `nativetls` |   No    | Enable native TLS (openssl) |
+| `socks`     |   No    | Enable socks5 proxy support |
+
 ## Minimum Supported Rust Version (MSRV)
 
 This project is built with the Rust language version `2024` and requires a minimum compiler version of `1.85.0`.
