@@ -4,6 +4,7 @@
 #![warn(rustdoc::bare_urls)]
 #![doc = include_str!("../README.md")]
 
+pub mod builder;
 pub mod client;
 pub mod error;
 pub mod model;

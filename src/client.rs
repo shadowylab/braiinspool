@@ -1,10 +1,10 @@
 //! Client
 
-use reqwest::header::{HeaderMap, HeaderValue};
-use reqwest::{Client, ClientBuilder, Response};
+use reqwest::{Client, Response};
 use serde::de::DeserializeOwned;
 use url::Url;
 
+use crate::builder::BraiinsPoolClientBuilder;
 use crate::error::Error;
 use crate::model::{BtcResponse, DailyRewards, PoolStats, UserProfile, Workers};
 
@@ -13,27 +13,35 @@ const BASE_URL: &str = "https://pool.braiins.com";
 /// Braiins Pool client
 #[derive(Debug, Clone)]
 pub struct BraiinsPoolClient {
-    url: Url,
-    client: Client,
+    pub(crate) url: Url,
+    pub(crate) client: Client,
 }
 
 impl BraiinsPoolClient {
     /// Construct a new Braiins Pool client
-    pub fn new(api_key: &str) -> Result<Self, Error> {
-        // Parse base URL
-        let url: Url = Url::parse(BASE_URL)?;
+    pub fn new<T>(api_key: T) -> Result<Self, Error>
+    where
+        T: Into<String>,
+    {
+        Self::builder(api_key).build()
+    }
 
-        let mut headers = HeaderMap::new();
-        let mut auth_value = HeaderValue::from_str(api_key)?;
-        auth_value.set_sensitive(true);
-        headers.insert("Pool-Auth-Token", auth_value);
+    /// Construct a new Braiins Pool client builder
+    #[inline]
+    pub fn builder<T>(api_key: T) -> BraiinsPoolClientBuilder
+    where
+        T: Into<String>,
+    {
+        BraiinsPoolClientBuilder::new(api_key)
+    }
 
-        let client: ClientBuilder = Client::builder().default_headers(headers);
-
-        Ok(Self {
-            url,
-            client: client.build()?,
-        })
+    /// Construct new with a custom reqwest [`Client`].
+    #[inline]
+    pub fn from_client(client: Client) -> Self {
+        Self {
+            url: Url::parse(BASE_URL).expect("Invalid base URL"),
+            client,
+        }
     }
 
     async fn request<T>(&self, url: Url) -> Result<T, Error>
