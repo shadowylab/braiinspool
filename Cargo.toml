@@ -1,13 +1,14 @@
 [package]
 name = "braiinspool"
 version = "0.1.1"
-edition = "2021"
+edition = "2024"
 description = "Braiins Pool API"
 authors = ["Yuki Kishimoto <yukikishimoto@protonmail.com>"]
 homepage = "https://github.com/shadowylab/braiinspool"
 repository = "https://github.com/shadowylab/braiinspool.git"
 license = "MIT"
 readme = "README.md"
+rust-version = "1.85.0"
 keywords = ["bitcoin", "braiins", "slushpool", "mining"]
 
 [dependencies]

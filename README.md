@@ -43,6 +43,10 @@ async fn main() -> Result<(), Error> {
 }
 ```
 
+## Minimum Supported Rust Version (MSRV)
+
+This project is built with the Rust language version `2024` and requires a minimum compiler version of `1.85.0`.
+
 ## License
 
 This project is distributed under the MIT software license - see the [LICENSE](./LICENSE) file for details
