@@ -11,8 +11,16 @@ readme = "README.md"
 rust-version = "1.85.0"
 keywords = ["bitcoin", "braiins", "slushpool", "mining"]
 
+[features]
+# Default features
+default = ["rustls"]
+# Enable rust TLS
+rustls = ["reqwest/rustls-tls"]
+# Enable natile TLS (openssl)
+nativetls = ["reqwest/native-tls"]
+
 [dependencies]
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.12", default-features = false, features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 url = "2.5"
 
