@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
 use reqwest::header::{HeaderMap, HeaderValue, InvalidHeaderValue};
-use reqwest::Client as ReqwestClient;
-use reqwest::Proxy;
+use reqwest::{Client as ReqwestClient, Proxy};
 use serde::de::DeserializeOwned;
 
 use crate::model::{
