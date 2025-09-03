@@ -2,7 +2,7 @@
 
 ## Description
 
-[Braiins](https://braiins.com) client library to check miners status from [Rust](https://rust-lang.org).
+[Braiins Pool](https://braiins.com) client.
 
 ## Getting started
 
