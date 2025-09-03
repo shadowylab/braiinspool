@@ -71,7 +71,7 @@ impl Client {
         let mut headers = HeaderMap::new();
         let mut auth_value = HeaderValue::from_str(api_key)?;
         auth_value.set_sensitive(true);
-        headers.insert("SlushPool-Auth-Token", auth_value);
+        headers.insert("Pool-Auth-Token", auth_value);
 
         let mut client = ReqwestClient::builder().default_headers(headers);
 
