@@ -11,6 +11,38 @@ pub(crate) struct BtcResponse<T> {
     pub btc: T,
 }
 
+/// Hash rate unit
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize)]
+pub enum HashRateUnit {
+    /// Hash per second (1 hash/sec)
+    #[serde(rename = "H/s", alias = "h/s")]
+    H,
+    /// Kilohash per second (1,000 hashes/sec)
+    #[serde(rename = "Kh/s", alias = "KH/s", alias = "kh/s")]
+    KH,
+    /// Megahash per second (1,000,000 hashes/sec)
+    #[serde(rename = "Mh/s", alias = "MH/s", alias = "mh/s")]
+    MH,
+    /// Gigahash per second (1,000,000,000 hashes/sec)
+    #[serde(rename = "Gh/s", alias = "GH/s", alias = "gh/s")]
+    GH,
+    /// Terahash per second (1,000,000,000,000 hashes/sec)
+    #[serde(rename = "Th/s", alias = "TH/s", alias = "th/s")]
+    TH,
+    /// Petahash per second (1,000,000,000,000,000 hashes/sec)
+    #[serde(rename = "Ph/s", alias = "PH/s", alias = "ph/s")]
+    PH,
+    /// Exahash per second (1,000,000,000,000,000,000 hashes/sec)
+    #[serde(rename = "Eh/s", alias = "EH/s", alias = "eh/s")]
+    EH,
+    /// Zettahash per second (1,000,000,000,000,000,000,000 hashes/sec)
+    #[serde(rename = "Zh/s", alias = "ZH/s", alias = "zh/s")]
+    ZH,
+    /// Yottahash per second (1,000,000,000,000,000,000,000,000 hashes/sec)
+    #[serde(rename = "Yh/s", alias = "YH/s", alias = "yh/s")]
+    YH,
+}
+
 /// Block
 #[derive(Debug, Clone, PartialEq, PartialOrd, Deserialize)]
 pub struct Block {
@@ -38,7 +70,7 @@ pub struct Block {
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct PoolStats {
     /// Unit used for the hash rate values
-    pub hash_rate_unit: String,
+    pub hash_rate_unit: HashRateUnit,
     /// Pool hash rate for the last 5 minutes
     pub pool_5m_hash_rate: f64,
     /// Pool hash rate for the last 60 minutes
@@ -60,7 +92,7 @@ pub struct UserProfile {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub all_time_reward: f64,
     /// Unit used for the hash rate values
-    pub hash_rate_unit: String,
+    pub hash_rate_unit: HashRateUnit,
     /// Average hash rate for the last 5 minutes
     pub hash_rate_5m: f64,
     /// Average hash rate for the last 60 minutes
@@ -135,7 +167,7 @@ pub struct Worker {
     /// Unix time of the last accepted share
     pub last_share: u64,
     /// Unit used for the hash rate values
-    pub hash_rate_unit: String,
+    pub hash_rate_unit: HashRateUnit,
     /// Current scoring hash rate
     pub hash_rate_scoring: f64,
     /// Average hash rate for the last 5 minutes
