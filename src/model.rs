@@ -190,3 +190,57 @@ pub struct Workers {
     /// Workers
     pub workers: HashMap<String, Worker>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_user_profile_deserialization() {
+        let json = r#"{
+    "username": "username",
+    "btc": {
+        "all_time_reward": "0.15000000",
+        "hash_rate_unit": "Gh/s",
+        "hash_rate_5m": 27978,
+        "hash_rate_60m": 28191,
+        "hash_rate_24h": 28357,
+        "hash_rate_yesterday": 28197,
+        "low_workers": 0,
+        "off_workers": 0,
+        "ok_workers": 2,
+        "dis_workers": 2,
+        "current_balance": "0.15000000",
+        "today_reward": "0.000166667",
+        "estimated_reward": "0.00011940",
+        "shares_5m": 123,
+        "shares_60m": 1476,
+        "shares_24h": 35424,
+        "shares_yesterday": 0
+    }
+}"#;
+        let user_profile: BtcResponse<UserProfile> = serde_json::from_str(json).unwrap();
+        assert_eq!(
+            user_profile.btc,
+            UserProfile {
+                all_time_reward: 0.15,
+                hash_rate_unit: HashRateUnit::GH,
+                hash_rate_5m: 27978.0,
+                hash_rate_60m: 28191.0,
+                hash_rate_24h: 28357.0,
+                hash_rate_yesterday: 28197.0,
+                low_workers: 0,
+                off_workers: 0,
+                ok_workers: 2,
+                dis_workers: 2,
+                current_balance: 0.15,
+                today_reward: 0.000166667,
+                estimated_reward: 0.00011940,
+                shares_5m: 123,
+                shares_60m: 1476,
+                shares_24h: 35424,
+                shares_yesterday: 0
+            }
+        )
+    }
+}
