@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 
 use crate::util::deserialize_number_from_string;
 
@@ -43,6 +43,54 @@ pub enum HashRateUnit {
     YH,
 }
 
+impl HashRateUnit {
+    fn exponent(&self) -> i32 {
+        match self {
+            Self::H => 1,
+            Self::KH => 3,
+            Self::MH => 6,
+            Self::GH => 9,
+            Self::TH => 12,
+            Self::PH => 15,
+            Self::EH => 18,
+            Self::ZH => 21,
+            Self::YH => 24,
+        }
+    }
+}
+
+/// Hashrate
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct HashRate {
+    unit: HashRateUnit,
+    value: f64,
+}
+
+impl HashRate {
+    #[inline]
+    fn new(unit: HashRateUnit, value: f64) -> Self {
+        Self { unit, value }
+    }
+
+    /// Get the hashrate unit.
+    #[inline]
+    pub fn unit(&self) -> HashRateUnit {
+        self.unit
+    }
+
+    /// Get the hashrate value in [`HashRateUnit`].
+    #[inline]
+    pub fn value(&self) -> f64 {
+        self.value
+    }
+
+    /// Get hashrate as **hashes/sec**.
+    #[inline]
+    pub fn to_hashes(&self) -> f64 {
+        self.value * 10f64.powi(self.unit.exponent())
+    }
+}
+
 /// Block
 #[derive(Debug, Clone, PartialEq, PartialOrd, Deserialize)]
 pub struct Block {
@@ -67,16 +115,14 @@ pub struct Block {
 }
 
 /// Pool stats
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct PoolStats {
-    /// Unit used for the hash rate values
-    pub hash_rate_unit: HashRateUnit,
     /// Pool hash rate for the last 5 minutes
-    pub pool_5m_hash_rate: f64,
+    pub pool_5m_hash_rate: HashRate,
     /// Pool hash rate for the last 60 minutes
-    pub pool_60m_hash_rate: f64,
+    pub pool_60m_hash_rate: HashRate,
     /// Pool hash rate for the last 24 hours
-    pub pool_24h_hash_rate: f64,
+    pub pool_24h_hash_rate: HashRate,
     /// Update timestamp
     pub update_ts: u64,
     /// Blocks
@@ -85,22 +131,48 @@ pub struct PoolStats {
     pub fpps_rate: f64,
 }
 
+impl<'de> Deserialize<'de> for PoolStats {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct Helper {
+            hash_rate_unit: HashRateUnit,
+            pool_5m_hash_rate: f64,
+            pool_60m_hash_rate: f64,
+            pool_24h_hash_rate: f64,
+            update_ts: u64,
+            blocks: HashMap<String, Block>,
+            fpps_rate: f64,
+        }
+
+        let helper: Helper = Helper::deserialize(deserializer)?;
+
+        Ok(Self {
+            pool_5m_hash_rate: HashRate::new(helper.hash_rate_unit, helper.pool_5m_hash_rate),
+            pool_60m_hash_rate: HashRate::new(helper.hash_rate_unit, helper.pool_60m_hash_rate),
+            pool_24h_hash_rate: HashRate::new(helper.hash_rate_unit, helper.pool_24h_hash_rate),
+            update_ts: helper.update_ts,
+            blocks: helper.blocks,
+            fpps_rate: helper.fpps_rate,
+        })
+    }
+}
+
 /// User profile
-#[derive(Debug, Clone, PartialEq, PartialOrd, Deserialize)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct UserProfile {
     /// Cumulative all-time reward
-    #[serde(deserialize_with = "deserialize_number_from_string")]
     pub all_time_reward: f64,
-    /// Unit used for the hash rate values
-    pub hash_rate_unit: HashRateUnit,
     /// Average hash rate for the last 5 minutes
-    pub hash_rate_5m: f64,
+    pub hash_rate_5m: HashRate,
     /// Average hash rate for the last 60 minutes
-    pub hash_rate_60m: f64,
+    pub hash_rate_60m: HashRate,
     /// Average hash rate for the last 24 hours
-    pub hash_rate_24h: f64,
+    pub hash_rate_24h: HashRate,
     /// Average hash rate for the previous UTC day
-    pub hash_rate_yesterday: f64,
+    pub hash_rate_yesterday: HashRate,
     /// Number of workers with `low` state
     pub low_workers: u32,
     /// Number of workers with `off` state
@@ -110,13 +182,10 @@ pub struct UserProfile {
     /// Number of workers with disabled monitoring
     pub dis_workers: u32,
     /// Current reward balance
-    #[serde(deserialize_with = "deserialize_number_from_string")]
     pub current_balance: f64,
     /// Confirmed reward for this day
-    #[serde(deserialize_with = "deserialize_number_from_string")]
     pub today_reward: f64,
     /// Estimated reward for the current block
-    #[serde(deserialize_with = "deserialize_number_from_string")]
     pub estimated_reward: f64,
     /// Active shares for last 5 minutes
     pub shares_5m: u32,
@@ -126,6 +195,59 @@ pub struct UserProfile {
     pub shares_24h: u32,
     /// Active shares for yesterday
     pub shares_yesterday: u32,
+}
+
+impl<'de> Deserialize<'de> for UserProfile {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct Helper {
+            #[serde(deserialize_with = "deserialize_number_from_string")]
+            all_time_reward: f64,
+            hash_rate_unit: HashRateUnit,
+            hash_rate_5m: f64,
+            hash_rate_60m: f64,
+            hash_rate_24h: f64,
+            hash_rate_yesterday: f64,
+            low_workers: u32,
+            off_workers: u32,
+            ok_workers: u32,
+            dis_workers: u32,
+            #[serde(deserialize_with = "deserialize_number_from_string")]
+            current_balance: f64,
+            #[serde(deserialize_with = "deserialize_number_from_string")]
+            today_reward: f64,
+            #[serde(deserialize_with = "deserialize_number_from_string")]
+            estimated_reward: f64,
+            shares_5m: u32,
+            shares_60m: u32,
+            shares_24h: u32,
+            shares_yesterday: u32,
+        }
+
+        let helper: Helper = Helper::deserialize(deserializer)?;
+
+        Ok(Self {
+            all_time_reward: helper.all_time_reward,
+            hash_rate_5m: HashRate::new(helper.hash_rate_unit, helper.hash_rate_5m),
+            hash_rate_60m: HashRate::new(helper.hash_rate_unit, helper.hash_rate_60m),
+            hash_rate_24h: HashRate::new(helper.hash_rate_unit, helper.hash_rate_24h),
+            hash_rate_yesterday: HashRate::new(helper.hash_rate_unit, helper.hash_rate_yesterday),
+            low_workers: helper.low_workers,
+            off_workers: helper.off_workers,
+            ok_workers: helper.ok_workers,
+            dis_workers: helper.dis_workers,
+            current_balance: helper.current_balance,
+            today_reward: helper.today_reward,
+            estimated_reward: helper.estimated_reward,
+            shares_5m: helper.shares_5m,
+            shares_60m: helper.shares_60m,
+            shares_24h: helper.shares_24h,
+            shares_yesterday: helper.shares_yesterday,
+        })
+    }
 }
 
 /// Daily reward
@@ -160,28 +282,61 @@ pub struct DailyRewards {
 }
 
 /// Worker
-#[derive(Debug, Clone, PartialEq, PartialOrd, Deserialize)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Worker {
     /// State of the worker (`ok`/`low`/`off`/`dis`)
     pub state: String,
     /// Unix time of the last accepted share
     pub last_share: u64,
-    /// Unit used for the hash rate values
-    pub hash_rate_unit: HashRateUnit,
     /// Current scoring hash rate
-    pub hash_rate_scoring: f64,
+    pub hash_rate_scoring: HashRate,
     /// Average hash rate for the last 5 minutes
-    pub hash_rate_5m: f64,
+    pub hash_rate_5m: HashRate,
     /// Average hash rate for the last 60 minutes
-    pub hash_rate_60m: f64,
+    pub hash_rate_60m: HashRate,
     /// Average hash rate for the last 24 hours
-    pub hash_rate_24h: f64,
+    pub hash_rate_24h: HashRate,
     /// Active shares for last 5 minutes
     pub shares_5m: u64,
     /// Active shares for last 60 minutes
     pub shares_60m: u64,
     /// Active shares for last 24 hours
     pub shares_24h: u64,
+}
+
+impl<'de> Deserialize<'de> for Worker {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct Helper {
+            state: String,
+            last_share: u64,
+            hash_rate_unit: HashRateUnit,
+            hash_rate_scoring: f64,
+            hash_rate_5m: f64,
+            hash_rate_60m: f64,
+            hash_rate_24h: f64,
+            shares_5m: u64,
+            shares_60m: u64,
+            shares_24h: u64,
+        }
+
+        let helper: Helper = Helper::deserialize(deserializer)?;
+
+        Ok(Self {
+            state: helper.state,
+            last_share: helper.last_share,
+            hash_rate_scoring: HashRate::new(helper.hash_rate_unit, helper.hash_rate_scoring),
+            hash_rate_5m: HashRate::new(helper.hash_rate_unit, helper.hash_rate_5m),
+            hash_rate_60m: HashRate::new(helper.hash_rate_unit, helper.hash_rate_60m),
+            hash_rate_24h: HashRate::new(helper.hash_rate_unit, helper.hash_rate_24h),
+            shares_5m: helper.shares_5m,
+            shares_60m: helper.shares_60m,
+            shares_24h: helper.shares_24h,
+        })
+    }
 }
 
 /// Workers
@@ -224,11 +379,10 @@ mod tests {
             user_profile.btc,
             UserProfile {
                 all_time_reward: 0.15,
-                hash_rate_unit: HashRateUnit::GH,
-                hash_rate_5m: 27978.0,
-                hash_rate_60m: 28191.0,
-                hash_rate_24h: 28357.0,
-                hash_rate_yesterday: 28197.0,
+                hash_rate_5m: HashRate::new(HashRateUnit::GH, 27978.0),
+                hash_rate_60m: HashRate::new(HashRateUnit::GH, 28191.0),
+                hash_rate_24h: HashRate::new(HashRateUnit::GH, 28357.0),
+                hash_rate_yesterday: HashRate::new(HashRateUnit::GH, 28197.0),
                 low_workers: 0,
                 off_workers: 0,
                 ok_workers: 2,
@@ -241,6 +395,6 @@ mod tests {
                 shares_24h: 35424,
                 shares_yesterday: 0
             }
-        )
+        );
     }
 }
