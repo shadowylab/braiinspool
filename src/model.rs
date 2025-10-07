@@ -448,4 +448,75 @@ mod tests {
             }
         );
     }
+
+    #[test]
+    fn test_workers_deserialization() {
+        let json = r#"{
+    "btc": {
+        "workers": {
+            "username.worker1": {
+                "state": "ok",
+                "last_share": 1542103204,
+                "hash_rate_unit": "Gh/s",
+                "hash_rate_scoring": 15342,
+                "hash_rate_5m": 14977,
+                "hash_rate_60m": 15302,
+                "hash_rate_24h": 15351,
+                "shares_5m": 90304,
+                "shares_60m": 1125762,
+                "shares_24h": 20945364
+
+            },
+            "username.worker2": {
+                "state": "ok",
+                "last_share": 1542103200,
+                "hash_rate_unit": "Gh/s",
+                "hash_rate_scoring": 12952,
+                "hash_rate_5m": 13001,
+                "hash_rate_60m": 12889,
+                "hash_rate_24h": 13006,
+                "shares_5m": 90304,
+                "shares_60m": 1125762,
+                "shares_24h": 20945364
+            }
+        }
+    }
+}"#;
+        let user_profile: BtcResponse<Workers> = serde_json::from_str(json).unwrap();
+        assert_eq!(
+            user_profile.btc,
+            Workers {
+                workers: HashMap::from([
+                    (
+                        String::from("username.worker1"),
+                        Worker {
+                            state: String::from("ok"),
+                            last_share: 1542103204,
+                            hash_rate_scoring: HashRate::new(HashRateUnit::GH, 15342.0),
+                            hash_rate_5m: HashRate::new(HashRateUnit::GH, 14977.0),
+                            hash_rate_60m: HashRate::new(HashRateUnit::GH, 15302.0),
+                            hash_rate_24h: HashRate::new(HashRateUnit::GH, 15351.0),
+                            shares_5m: 90304,
+                            shares_60m: 1125762,
+                            shares_24h: 20945364
+                        }
+                    ),
+                    (
+                        String::from("username.worker2"),
+                        Worker {
+                            state: String::from("ok"),
+                            last_share: 1542103200,
+                            hash_rate_scoring: HashRate::new(HashRateUnit::GH, 12952.0),
+                            hash_rate_5m: HashRate::new(HashRateUnit::GH, 13001.0),
+                            hash_rate_60m: HashRate::new(HashRateUnit::GH, 12889.0),
+                            hash_rate_24h: HashRate::new(HashRateUnit::GH, 13006.0),
+                            shares_5m: 90304,
+                            shares_60m: 1125762,
+                            shares_24h: 20945364
+                        }
+                    )
+                ])
+            }
+        );
+    }
 }
