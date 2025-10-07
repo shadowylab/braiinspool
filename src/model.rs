@@ -351,6 +351,57 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_pool_stats_deserialization() {
+        let json = r#"{
+    "btc": {
+        "hash_rate_unit": "Gh/s",
+        "pool_active_workers": 1,
+        "pool_5m_hash_rate": 5727000000.746604,
+        "pool_60m_hash_rate": 5617000000.99422,
+        "pool_24h_hash_rate": 5517000000.88519,
+        "update_ts": 1699938300,
+        "blocks": {
+            "549753": {
+                "date_found": 1542002919,
+                "mining_duration": 3423,
+                "total_shares": 4640771710739,
+                "state": "confirmed",
+                "confirmations_left": 0,
+                "value": "12.92594863",
+                "user_reward": "0.00006194",
+                "pool_scoring_hash_rate": 5878745444.967269
+            }
+        },
+        "fpps_rate": 0.00000241
+    }
+}"#;
+        let user_profile: BtcResponse<PoolStats> = serde_json::from_str(json).unwrap();
+        assert_eq!(
+            user_profile.btc,
+            PoolStats {
+                pool_5m_hash_rate: HashRate::new(HashRateUnit::GH, 5727000000.746604),
+                pool_60m_hash_rate: HashRate::new(HashRateUnit::GH, 5617000000.99422),
+                pool_24h_hash_rate: HashRate::new(HashRateUnit::GH, 5517000000.88519),
+                update_ts: 1699938300,
+                blocks: HashMap::from([(
+                    String::from("549753"),
+                    Block {
+                        date_found: 1542002919,
+                        mining_duration: 3423,
+                        total_shares: 4640771710739,
+                        state: String::from("confirmed"),
+                        confirmations_left: 0,
+                        value: 12.92594863,
+                        user_reward: 0.00006194,
+                        pool_scoring_hash_rate: 5878745444.967269
+                    }
+                )]),
+                fpps_rate: 0.00000241
+            }
+        );
+    }
+
+    #[test]
     fn test_user_profile_deserialization() {
         let json = r#"{
     "username": "username",
